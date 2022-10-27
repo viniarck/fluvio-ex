@@ -7,9 +7,7 @@ defmodule Fluvio.Producer do
   alias Fluvio
 
   defmodule Config do
-    @moduledoc """
-    Producer configuration.
-    """
+    @moduledoc false
     @enforce_keys [:topic]
     defstruct topic: nil,
               linger_ms: nil,

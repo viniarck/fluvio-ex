@@ -7,9 +7,7 @@ defmodule Fluvio.Consumer do
   alias Fluvio.Record
 
   defmodule Config do
-    @moduledoc """
-    Consumer configuration.
-    """
+    @moduledoc false
     @enforce_keys [:topic]
     defstruct topic: nil,
               partition: 0,
