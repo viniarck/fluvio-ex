@@ -1,0 +1,20 @@
+[package]
+name = "fluvio_ex"
+version = "0.1.0"
+authors = []
+edition = "2021"
+
+[lib]
+name = "fluvio_ex"
+path = "src/lib.rs"
+crate-type = ["cdylib"]
+
+[dependencies]
+rustler = "0.26.0"
+fluvio = "0.13.1"
+async-std = "1.9"
+futures-util = "0.3.24"
+fluvio-types = "0.3.8"
+fluvio-spu-schema = "0.10.0"
+flate2 = "1.0.22"
+fluvio-compression = "0.2.0"
