@@ -33,11 +33,11 @@ end
 
 The following Fluvio Rust abstractions are supported on Elixir:
 
-| **Rust**                    | **Elixir**      |
-|-----------------------------|-----------------|
-| `fluvio::PartitionConsumer` | Fluvio.Consumer |
-| `fluvio::TopicProducer`     | Fluvio.Producer |
-| `fluvio::FluvioAdmin`       | Fluvio.Admin    |
+| **Rust**                    | **Elixir**        |
+|-----------------------------|-------------------|
+| `fluvio::PartitionConsumer` | `Fluvio.Consumer` |
+| `fluvio::TopicProducer`     | `Fluvio.Producer` |
+| `fluvio::FluvioAdmin`       | `Fluvio.Admin`    |
 
 Each Elixir abstraction tend to provide equivalent functionalities that [`fluvio` crate exposes](https://docs.rs/fluvio/latest/fluvio/), although more Elixir-oriented to be well integrated with Elixir ecosystem and OTP. `fluvio::FluvioAdmin` is minimally supported since provisioning cluster resources is typically done upfront and not at the application level, but for experimentation it's useful to have `Fluvio.Admin`.
 
@@ -45,7 +45,7 @@ Each Elixir abstraction tend to provide equivalent functionalities that [`fluvio
 
 ### Consumer
 
-This snippet illustrates a `Consumer` connected to a `"lobby"` topic and using an optional SmarModule filter. Initially, this consumer calls `Consumer.stream_unfold/2` to lazily take 4 reords and chunk every 2 records, printing them. After that, it keeps executing the `Consumer.stream_each/2` that will keep consuming from the stream. `Consumer.stream_each` is a higher-level function that recursively calls `Consumer.stream_next/2`.
+This snippet illustrates a `Consumer` connected to a `"lobby"` topic and using an optional SmarModule filter. Initially, this consumer calls `Consumer.stream_unfold/2` to lazily take 4 reords and chunk every 2 records, printing them. After that, keeps executing `Consumer.stream_each/2` consuming the stream. `Consumer.stream_each` is a higher-level function that recursively calls `Consumer.stream_next/2`.
 
 ```elixir
 alias Fluvio.Consumer
@@ -73,7 +73,7 @@ end)
 
 ### Producer
 
-This snippet illustrates a `Producer` connected to a `"lobby"` topic. Initially, a string "hello" is sent and flushed, after that, more three strigs `"are"`, `"you"`, `"there?"` are sent and asserted. Finally, string numbers from 1 to 20 are sent asynchronously in chunk of 10 with a flush between each iteration. If you're going to try to send and await records asynchronusly make sure that it's OK for your application and also benchmark to confirm if the overhead and async approach being used is beneficial, `Fluvio.Producer` also has options like `linger_ms`, batch_size_bytes` and `compression` can influence the throughput outcome:
+This snippet illustrates a `Producer` connected to a `"lobby"` topic. Initially, a string "hello" is sent and flushed, after that, more three strigs `"are"`, `"you"`, `"there?"` are sent and asserted. Finally, integers from 1 to 20 mapped as strings are sent asynchronously in chunk of 10 performing a flush between each iteration. If you're going to send and await records asynchronusly, make sure that it's suitable and benefitial to your application:
 
 
 ```elixir
