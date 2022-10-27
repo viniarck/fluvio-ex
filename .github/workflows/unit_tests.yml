@@ -16,7 +16,7 @@ jobs:
     strategy:
       matrix:
         otp: ['25.0']
-        elixir: ['1.13.4']
+        elixir: ['1.14.0', '1.13.4']
     steps:
     - name: Checkout repository
       uses: actions/checkout@v2
