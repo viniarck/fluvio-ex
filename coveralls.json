@@ -1,0 +1,6 @@
+{
+  "skip_files": [
+    "lib/fluvio/native.ex"
+  ],
+  "custom_stop_words": ["loop_fn", "stream_each"]
+}
