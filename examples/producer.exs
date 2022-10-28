@@ -5,11 +5,6 @@ alias Fluvio.Producer
 {:ok, _} = Producer.send(pid, "hello")
 {:ok, _} = Producer.flush(pid)
 
-Producer.send(pid, ["are", "you", "there?"])
-|> Enum.each(&({:ok, _} = &1))
-
-{:ok, _} = Producer.flush(pid)
-
 [] =
   1..20
   |> Stream.chunk_every(10)
