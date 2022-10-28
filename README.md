@@ -25,7 +25,7 @@ You can add `fluvio` to your list of dependencies in `mix.exs`:
 ```elixir
 def deps do
   [
-    {:fluvio, "~> 0.2.0"}
+    {:fluvio, "~> 0.2"}
   ]
 end
 ```

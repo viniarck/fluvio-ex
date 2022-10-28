@@ -16,6 +16,13 @@ Types of changes
 
 ## [Unreleased]
 
+## [0.2.1] - 2022-10-28
+
+### Added
+
+- Minor documentation updates
+- Added examples/ping_pong.exs
+
 ## [0.2.0] - 2022-10-27
 
 ### Added
