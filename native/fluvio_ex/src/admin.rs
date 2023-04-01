@@ -29,8 +29,8 @@ fn delete_topic(admin_res: ResourceArc<FluvioAdminResource>, topic: String) -> N
 fn create_topic(
     admin_res: ResourceArc<FluvioAdminResource>,
     topic: String,
-    partitions: i32,
-    replication: i32,
+    partitions: u32,
+    replication: u32,
     ignore_rack: Option<bool>,
 ) -> NifResult<Atom> {
     let admin = admin_res.admin.lock().unwrap();

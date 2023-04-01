@@ -16,6 +16,12 @@ Types of changes
 
 ## [Unreleased]
 
+## [0.2.2] - 2023-03-31
+
+### Changed
+
+- Updated `fluvio` crate to `0.18.0`, minor types and imports refactoring
+
 ## [0.2.1] - 2022-10-28
 
 ### Added

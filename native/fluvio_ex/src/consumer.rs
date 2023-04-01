@@ -3,11 +3,9 @@ use async_std::task;
 use flate2::bufread::GzEncoder;
 use flate2::Compression;
 use fluvio::dataplane::record::ConsumerRecord;
-use fluvio::dataplane::ErrorCode;
+use fluvio_spu_schema::errors::ErrorCode;
 use fluvio::{ConsumerConfig, Offset, PartitionConsumer};
-use fluvio_spu_schema::server::stream_fetch::{
-    SmartModuleContextData, SmartModuleInvocation, SmartModuleInvocationWasm, SmartModuleKind,
-};
+use fluvio::{SmartModuleContextData, SmartModuleKind, SmartModuleInvocation, SmartModuleInvocationWasm};
 use fluvio_types::defaults::FLUVIO_CLIENT_MAX_FETCH_BYTES;
 use futures_util::stream::BoxStream;
 use futures_util::StreamExt;
@@ -85,7 +83,7 @@ fn new_sm_ctx_data(atom: Option<Atom>, acc: Option<Vec<u8>>) -> SmartModuleConte
 fn new_consumer(
     fluvio_res: ResourceArc<client::FluvioResource>,
     topic: String,
-    partition: i32,
+    partition: u32,
     offset_type: Atom,
     offset_value: u32,
     max_bytes: Option<i32>,
@@ -94,7 +92,7 @@ fn new_consumer(
     sm_ctx_data_acc: Option<Vec<u8>>,
 ) -> NifResult<ConsumerResourceResponse> {
     let fluvio = fluvio_res.fluvio.lock().unwrap();
-    let smartmodule = match sm_path {
+    let smartmodule: Vec<SmartModuleInvocation> = match sm_path {
         Some(sm_path) => {
             let path = Path::new(&sm_path);
             let sm_invocation = new_sm_from_path(
@@ -102,9 +100,9 @@ fn new_consumer(
                 new_sm_ctx_data(sm_ctx_data, sm_ctx_data_acc),
                 BTreeMap::new(),
             )?;
-            Some(sm_invocation)
+            Vec::from([sm_invocation])
         }
-        _ => None,
+        _ => Vec::new()
     };
     let fetch_config = match ConsumerConfig::builder()
         .max_bytes(max_bytes.unwrap_or_else(|| FLUVIO_CLIENT_MAX_FETCH_BYTES))
