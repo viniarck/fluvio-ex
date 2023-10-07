@@ -19,7 +19,7 @@ pub struct FluvioAdminResourceResponse {
 #[rustler::nif]
 fn delete_topic(admin_res: ResourceArc<FluvioAdminResource>, topic: String) -> NifResult<Atom> {
     let admin = admin_res.admin.lock().unwrap();
-    match task::block_on(admin.delete::<TopicSpec, String>(topic.clone())) {
+    match task::block_on(admin.delete::<TopicSpec>(topic.clone())) {
         Ok(_) => Ok(atom::ok()),
         Err(err) => Err(Error::Term(Box::new(err.to_string()))),
     }
