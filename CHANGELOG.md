@@ -16,6 +16,13 @@ Types of changes
 
 ## [Unreleased]
 
+## [0.2.3] - 2023-10-07
+
+### Changed
+
+- Upgraded `fluvio` crate to `0.21.0` and related upstream dependencies
+
+
 ## [0.2.2] - 2023-03-31
 
 ### Changed
