@@ -4,7 +4,7 @@ defmodule Fluvio.MixProject do
   def project do
     [
       app: :fluvio,
-      version: "0.2.3",
+      version: "0.2.4",
       elixir: "~> 1.13",
       start_permanent: Mix.env() == :prod,
       deps: deps(),
@@ -36,7 +36,7 @@ defmodule Fluvio.MixProject do
   # Run "mix help deps" to learn about dependencies.
   defp deps do
     [
-      {:rustler, "~> 0.29.1"},
+      {:rustler, "~> 0.30.0"},
       {:excoveralls, "~> 0.15", only: :test},
       {:ex_doc, "~> 0.28.6", only: :dev, runtime: false}
     ]
