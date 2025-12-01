@@ -3,9 +3,11 @@ use async_std::task;
 use flate2::bufread::GzEncoder;
 use flate2::Compression;
 use fluvio::dataplane::record::ConsumerRecord;
-use fluvio_spu_schema::errors::ErrorCode;
 use fluvio::{ConsumerConfig, Offset, PartitionConsumer};
-use fluvio::{SmartModuleContextData, SmartModuleKind, SmartModuleInvocation, SmartModuleInvocationWasm};
+use fluvio::{
+    SmartModuleContextData, SmartModuleInvocation, SmartModuleInvocationWasm, SmartModuleKind,
+};
+use fluvio_spu_schema::errors::ErrorCode;
 use fluvio_types::defaults::FLUVIO_CLIENT_MAX_FETCH_BYTES;
 use futures_util::stream::BoxStream;
 use futures_util::StreamExt;
@@ -38,7 +40,7 @@ fn offset_from_atom(offset_type: Atom, offset_value: u32) -> Result<Offset, Erro
     } else if offset_type == atom::absolute() {
         match Offset::absolute(i64::from(offset_value)) {
             Ok(offset) => Ok(offset),
-            Err(err) => Err(Error::Term(Box::new(err.to_string())))
+            Err(err) => Err(Error::Term(Box::new(err.to_string()))),
         }
     } else {
         Err(Error::Term(Box::new(std::format!(
@@ -66,6 +68,7 @@ fn new_sm_from_path(
         wasm: SmartModuleInvocationWasm::AdHoc(vec),
         kind: SmartModuleKind::Generic(ctx),
         params: params.into(),
+        name: None,
     })
 }
 
@@ -102,7 +105,7 @@ fn new_consumer(
             )?;
             Vec::from([sm_invocation])
         }
-        _ => Vec::new()
+        _ => Vec::new(),
     };
     let fetch_config = match ConsumerConfig::builder()
         .max_bytes(max_bytes.unwrap_or_else(|| FLUVIO_CLIENT_MAX_FETCH_BYTES))
@@ -142,7 +145,7 @@ fn next<'a>(
         stream.next(),
     )) {
         Ok(next_val) => next_val,
-        Err(_) => return Ok(atom::stop_next().encode(env))
+        Err(_) => return Ok(atom::stop_next().encode(env)),
     };
     match next_val {
         Some(Ok(record)) => Ok((

@@ -36,7 +36,7 @@ defmodule Fluvio.MixProject do
   # Run "mix help deps" to learn about dependencies.
   defp deps do
     [
-      {:rustler, "~> 0.30.0"},
+      {:rustler, "~> 0.37.1", runtime: false},
       {:excoveralls, "~> 0.15", only: :test},
       {:ex_doc, "~> 0.28.6", only: :dev, runtime: false}
     ]
