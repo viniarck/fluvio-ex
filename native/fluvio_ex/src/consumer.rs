@@ -2,8 +2,9 @@ use async_std::future;
 use async_std::task;
 use flate2::bufread::GzEncoder;
 use flate2::Compression;
+use fluvio::consumer::ConsumerConfigExt;
 use fluvio::dataplane::record::ConsumerRecord;
-use fluvio::{ConsumerConfig, Offset, PartitionConsumer};
+use fluvio::Offset;
 use fluvio::{
     SmartModuleContextData, SmartModuleInvocation, SmartModuleInvocationWasm, SmartModuleKind,
 };
@@ -22,7 +23,6 @@ use crate::atom;
 use crate::client;
 
 pub struct ConsumerResource {
-    pub consumer: Mutex<PartitionConsumer>,
     pub stream: Mutex<BoxStream<'static, Result<ConsumerRecord, ErrorCode>>>,
 }
 
@@ -107,28 +107,27 @@ fn new_consumer(
         }
         _ => Vec::new(),
     };
-    let fetch_config = match ConsumerConfig::builder()
+
+    let offset = offset_from_atom(offset_type, offset_value)?;
+    let consumer_config = match ConsumerConfigExt::builder()
+        .topic(topic)
+        .partition(partition)
         .max_bytes(max_bytes.unwrap_or_else(|| FLUVIO_CLIENT_MAX_FETCH_BYTES))
         .smartmodule(smartmodule)
+        .offset_start(offset)
         .build()
     {
-        Ok(fetch_config) => fetch_config,
+        Ok(consumer_config) => consumer_config,
         Err(err) => return Err(Error::Term(Box::new(err.to_string()))),
     };
-    let consumer = match task::block_on(fluvio.partition_consumer(topic, partition)) {
+    let consumer_stream = match task::block_on(fluvio.consumer_with_config(consumer_config)) {
         Ok(consumer) => consumer,
-        Err(err) => return Err(Error::Term(Box::new(err.to_string()))),
-    };
-    let offset = offset_from_atom(offset_type, offset_value)?;
-    let stream = match task::block_on(consumer.stream_with_config(offset, fetch_config)) {
-        Ok(stream) => stream,
         Err(err) => return Err(Error::Term(Box::new(err.to_string()))),
     };
     Ok(ConsumerResourceResponse {
         ok: atom::ok(),
         resource: ResourceArc::new(ConsumerResource {
-            consumer: Mutex::new(consumer),
-            stream: Mutex::new(Box::pin(stream)),
+            stream: Mutex::new(Box::pin(consumer_stream)),
         }),
     })
 }
