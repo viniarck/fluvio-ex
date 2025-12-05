@@ -1,7 +1,7 @@
 use async_std::task;
 use fluvio::{TopicProducerConfigBuilder, TopicProducerPool};
 use fluvio_compression::Compression;
-use rustler::{Atom, Error, NifResult, NifTuple, ResourceArc};
+use rustler::{Atom, Error, NifResult, NifTuple, Resource, ResourceArc};
 use std::sync::Mutex;
 use std::time::Duration;
 
@@ -11,6 +11,8 @@ use crate::client::FluvioResource;
 pub struct ProducerResource {
     pub producer: Mutex<TopicProducerPool>,
 }
+
+impl Resource for ProducerResource {}
 
 #[derive(NifTuple)]
 pub struct ProducerResourceResponse {

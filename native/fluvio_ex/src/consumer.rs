@@ -12,7 +12,7 @@ use fluvio_spu_schema::errors::ErrorCode;
 use fluvio_types::defaults::FLUVIO_CLIENT_MAX_FETCH_BYTES;
 use futures_util::stream::BoxStream;
 use futures_util::StreamExt;
-use rustler::{Atom, Encoder, Env, Error, NifResult, NifTuple, ResourceArc, Term};
+use rustler::{Atom, Encoder, Env, Error, NifResult, NifTuple, Resource, ResourceArc, Term};
 use std::collections::BTreeMap;
 use std::io::Read;
 use std::path::Path;
@@ -25,6 +25,8 @@ use crate::client;
 pub struct ConsumerResource {
     pub stream: Mutex<BoxStream<'static, Result<ConsumerRecord, ErrorCode>>>,
 }
+
+impl Resource for ConsumerResource {}
 
 #[derive(NifTuple)]
 pub struct ConsumerResourceResponse {

@@ -1,7 +1,7 @@
 use async_std::task;
 use fluvio::metadata::topic::TopicSpec;
 use fluvio::FluvioAdmin;
-use rustler::{Atom, Error, NifResult, NifTuple, ResourceArc};
+use rustler::{Atom, Error, NifResult, NifTuple, Resource, ResourceArc};
 use std::sync::Mutex;
 
 use crate::atom;
@@ -9,6 +9,8 @@ use crate::atom;
 pub struct FluvioAdminResource {
     pub admin: Mutex<FluvioAdmin>,
 }
+
+impl Resource for FluvioAdminResource {}
 
 #[derive(NifTuple)]
 pub struct FluvioAdminResourceResponse {
