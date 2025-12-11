@@ -2,7 +2,7 @@
 name = "fluvio_ex"
 version = "0.2.3"
 authors = []
-edition = "2021"
+edition = "2024"
 
 [lib]
 name = "fluvio_ex"
@@ -10,11 +10,11 @@ path = "src/lib.rs"
 crate-type = ["cdylib"]
 
 [dependencies]
-rustler = { version = "0.30.0", features = ["nif_version_2_16"] }
-fluvio = "0.21.4"
-async-std = "1.9"
-futures-util = "0.3.30"
-fluvio-types = "0.4.4"
-fluvio-spu-schema = "0.14.5"
-flate2 = "1.0.25"
-fluvio-compression = "0.3.2"
+rustler = { version = "0.37.0", features = ["nif_version_2_16"]}
+fluvio = "0.50.1"
+async-std = "1.13.2"
+futures-util = "0.3.31"
+fluvio-types = "0.50.1"
+fluvio-spu-schema = "0.50.1"
+flate2 = "1.1.5"
+fluvio-compression = "0.50.1"

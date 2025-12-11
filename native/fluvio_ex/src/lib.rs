@@ -1,32 +1,21 @@
 use rustler::{Env, Term};
 
-pub mod atom;
 pub mod admin;
+pub mod atom;
 pub mod client;
 pub mod consumer;
 pub mod producer;
 
-rustler::init!(
-    "Elixir.Fluvio.Native",
-    [
-        admin::admin_connect,
-        admin::create_topic,
-        admin::delete_topic,
-        client::connect,
-        client::platform_version,
-        consumer::new_consumer,
-        consumer::next,
-        producer::new_producer,
-        producer::send,
-        producer::flush,
-    ],
-    load = on_load
-);
+use admin::FluvioAdminResource;
+use client::FluvioResource;
+use consumer::ConsumerResource;
+use producer::ProducerResource;
+
+rustler::init!("Elixir.Fluvio.Native", load = on_load);
 
 fn on_load(env: Env, _info: Term) -> bool {
-    rustler::resource!(producer::ProducerResource, env);
-    rustler::resource!(consumer::ConsumerResource, env);
-    rustler::resource!(client::FluvioResource, env);
-    rustler::resource!(admin::FluvioAdminResource, env);
-    true
+    env.register::<ProducerResource>().is_ok()
+        && env.register::<ConsumerResource>().is_ok()
+        && env.register::<FluvioResource>().is_ok()
+        && env.register::<FluvioAdminResource>().is_ok()
 }

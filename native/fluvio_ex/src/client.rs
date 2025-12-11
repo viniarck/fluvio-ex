@@ -1,6 +1,6 @@
 use async_std::task;
 use fluvio::Fluvio;
-use rustler::{Error, NifResult, NifTuple, ResourceArc};
+use rustler::{Error, NifResult, NifTuple, Resource, ResourceArc};
 use std::sync::Mutex;
 
 use crate::atom;
@@ -8,6 +8,8 @@ use crate::atom;
 pub struct FluvioResource {
     pub fluvio: Mutex<Fluvio>,
 }
+
+impl Resource for FluvioResource {}
 
 #[derive(NifTuple)]
 pub struct FluvioResourceResponse {
@@ -24,7 +26,7 @@ fn connect() -> NifResult<FluvioResourceResponse> {
                 fluvio: Mutex::new(fluvio),
             }),
         }),
-        Err(err) => Err(Error::Term(Box::new(err.to_string())))
+        Err(err) => Err(Error::Term(Box::new(err.to_string()))),
     }
 }
 

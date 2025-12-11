@@ -1,7 +1,7 @@
 use async_std::task;
-use fluvio::{TopicProducer, TopicProducerConfigBuilder};
+use fluvio::{TopicProducerConfigBuilder, TopicProducerPool};
 use fluvio_compression::Compression;
-use rustler::{Atom, Error, NifResult, NifTuple, ResourceArc};
+use rustler::{Atom, Error, NifResult, NifTuple, Resource, ResourceArc};
 use std::sync::Mutex;
 use std::time::Duration;
 
@@ -9,8 +9,10 @@ use crate::atom;
 use crate::client::FluvioResource;
 
 pub struct ProducerResource {
-    pub producer: Mutex<TopicProducer>,
+    pub producer: Mutex<TopicProducerPool>,
 }
+
+impl Resource for ProducerResource {}
 
 #[derive(NifTuple)]
 pub struct ProducerResourceResponse {
@@ -49,7 +51,9 @@ fn new_producer(
         .linger(Duration::from_millis(linger_ms.unwrap_or_else(|| 100)))
         .batch_size(batch_size_bytes.unwrap_or_else(|| 16_384))
         .timeout(Duration::from_millis(timeout_ms.unwrap_or_else(|| 1500)))
-        .compression(compression_from_atom(compression.unwrap_or_else(|| atom::none()))?)
+        .compression(compression_from_atom(
+            compression.unwrap_or_else(|| atom::none()),
+        )?)
         .build()
     {
         Ok(config) => config,

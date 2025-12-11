@@ -2,14 +2,17 @@ use async_std::future;
 use async_std::task;
 use flate2::bufread::GzEncoder;
 use flate2::Compression;
+use fluvio::consumer::ConsumerConfigExt;
 use fluvio::dataplane::record::ConsumerRecord;
+use fluvio::Offset;
+use fluvio::{
+    SmartModuleContextData, SmartModuleInvocation, SmartModuleInvocationWasm, SmartModuleKind,
+};
 use fluvio_spu_schema::errors::ErrorCode;
-use fluvio::{ConsumerConfig, Offset, PartitionConsumer};
-use fluvio::{SmartModuleContextData, SmartModuleKind, SmartModuleInvocation, SmartModuleInvocationWasm};
 use fluvio_types::defaults::FLUVIO_CLIENT_MAX_FETCH_BYTES;
 use futures_util::stream::BoxStream;
 use futures_util::StreamExt;
-use rustler::{Atom, Encoder, Env, Error, NifResult, NifTuple, ResourceArc, Term};
+use rustler::{Atom, Encoder, Env, Error, NifResult, NifTuple, Resource, ResourceArc, Term};
 use std::collections::BTreeMap;
 use std::io::Read;
 use std::path::Path;
@@ -20,9 +23,10 @@ use crate::atom;
 use crate::client;
 
 pub struct ConsumerResource {
-    pub consumer: Mutex<PartitionConsumer>,
     pub stream: Mutex<BoxStream<'static, Result<ConsumerRecord, ErrorCode>>>,
 }
+
+impl Resource for ConsumerResource {}
 
 #[derive(NifTuple)]
 pub struct ConsumerResourceResponse {
@@ -38,7 +42,7 @@ fn offset_from_atom(offset_type: Atom, offset_value: u32) -> Result<Offset, Erro
     } else if offset_type == atom::absolute() {
         match Offset::absolute(i64::from(offset_value)) {
             Ok(offset) => Ok(offset),
-            Err(err) => Err(Error::Term(Box::new(err.to_string())))
+            Err(err) => Err(Error::Term(Box::new(err.to_string()))),
         }
     } else {
         Err(Error::Term(Box::new(std::format!(
@@ -66,6 +70,7 @@ fn new_sm_from_path(
         wasm: SmartModuleInvocationWasm::AdHoc(vec),
         kind: SmartModuleKind::Generic(ctx),
         params: params.into(),
+        name: None,
     })
 }
 
@@ -102,30 +107,29 @@ fn new_consumer(
             )?;
             Vec::from([sm_invocation])
         }
-        _ => Vec::new()
+        _ => Vec::new(),
     };
-    let fetch_config = match ConsumerConfig::builder()
+
+    let offset = offset_from_atom(offset_type, offset_value)?;
+    let consumer_config = match ConsumerConfigExt::builder()
+        .topic(topic)
+        .partition(partition)
         .max_bytes(max_bytes.unwrap_or_else(|| FLUVIO_CLIENT_MAX_FETCH_BYTES))
         .smartmodule(smartmodule)
+        .offset_start(offset)
         .build()
     {
-        Ok(fetch_config) => fetch_config,
+        Ok(consumer_config) => consumer_config,
         Err(err) => return Err(Error::Term(Box::new(err.to_string()))),
     };
-    let consumer = match task::block_on(fluvio.partition_consumer(topic, partition)) {
+    let consumer_stream = match task::block_on(fluvio.consumer_with_config(consumer_config)) {
         Ok(consumer) => consumer,
-        Err(err) => return Err(Error::Term(Box::new(err.to_string()))),
-    };
-    let offset = offset_from_atom(offset_type, offset_value)?;
-    let stream = match task::block_on(consumer.stream_with_config(offset, fetch_config)) {
-        Ok(stream) => stream,
         Err(err) => return Err(Error::Term(Box::new(err.to_string()))),
     };
     Ok(ConsumerResourceResponse {
         ok: atom::ok(),
         resource: ResourceArc::new(ConsumerResource {
-            consumer: Mutex::new(consumer),
-            stream: Mutex::new(Box::pin(stream)),
+            stream: Mutex::new(Box::pin(consumer_stream)),
         }),
     })
 }
@@ -142,7 +146,7 @@ fn next<'a>(
         stream.next(),
     )) {
         Ok(next_val) => next_val,
-        Err(_) => return Ok(atom::stop_next().encode(env))
+        Err(_) => return Ok(atom::stop_next().encode(env)),
     };
     match next_val {
         Some(Ok(record)) => Ok((
