@@ -16,6 +16,12 @@ Types of changes
 
 ## [Unreleased]
 
+## [0.2.5] - 2025-12-10
+
+### Changed
+
+- Upgraded `fluvio` crate to `0.50.1`, `rustler` to `0.37` and related upstream dependencies
+
 ## [0.2.4] - 2024-01-28
 
 ### Changed
