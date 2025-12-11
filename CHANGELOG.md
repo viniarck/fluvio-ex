@@ -20,7 +20,7 @@ Types of changes
 
 ### Changed
 
-- Upgraded `fluvio` crate to `0.50.1`, `rustler` to `0.37` and related upstream dependencies
+- Upgraded `fluvio` crate to `0.50.1`, `rustler` to `0.37` and related upstream dependencies. Contributed by @mkurkov
 
 ## [0.2.4] - 2024-01-28
 
